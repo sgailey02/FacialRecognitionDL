@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"
+            integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script src="/static/ajax.js"></script>
+<link rel= "stylesheet" type= "text/css" href= "style.css">
+</head>
+<body>
+
+    <div class="center" id="realtime-video" display: hidden>
+        <div class="centerWithin">
+            <button id="start-camera" onclick="start_camera()">Start Camera</button><br>
+            <video id="video" width="640" height="480" autoplay></video><br>
+            <button id="click-photo">Take Photo and Verify</button><br>
+            <canvas id="canvas" width="250" height="250"></canvas><br>
+            <label id="prediction" style="font-size: 35px; text-align:center;" display: hidden></label>
+        </div>
+
+    </div>
+    <div id="login" class="center">
+        <div class="centerWithin">
+            <b><label for="loginUsername">Username</label></b><br>
+            <input type="text" id="loginUsername" name="loginUsername" value="John"><br>
+            <input type="submit" value="Login" onclick="showCamera()">
+        </div>
+    </div>
+
+    <div id ='fileDiv' display: hidden>
+    <form id='file-catcher'>
+        <input id='file-input' type='file' multiple />
+        <button type='submit'>
+            Submit
+        </button>
+
+    </form>
+    <div id='file-list-display'></div>
+    </div>
+    <div id="loading" display: hidden ><img src="/static/images/loading.gif"/></div>
+
+
+
+    <script>
+            function start_camera() {
+                let camera_button = document.querySelector("#start-camera");
+                let video = document.querySelector("#video");
+                let click_button = document.querySelector("#click-photo");
+                let canvas = document.querySelector("#canvas");
+
+                camera_button.addEventListener('click', async function() {
+                    let stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                    video.srcObject = stream;
+                });
+
+                click_button.addEventListener('click', function(e) {
+                    e.stopImmediatePropagation();
+                    canvas.getContext('2d').drawImage(video, 200, 125, 250, 250, 0, 0, 250, 250);
+                    let image_data_url = canvas.toDataURL('image/jpeg');
+                    uploading();
+                    showResult();
+                    send_image(image_data_url);
+                });
+            }
+
+            function send_image(image_data_url) {
+                var prediction = document.getElementById("prediction");
+                file_upload("/open_calls/open_upload",
+                    {
+                    "username": $('#loginUsername').val(),
+                    "file": image_data_url
+                },
+                 function (data) {
+                    if (data.message == "False") {
+                        prediction.innerHTML = "I do not recognize you, " + $('#loginUsername').val() + ".";
+                    } else {
+                        prediction.innerHTML = "Hello, " + $('#loginUsername').val() + ".";
+                    }
+                    doneUploading();
+                }, function (err) { console.log(err)
+                    alert("Image could not be uploaded, or you are missing your user model.")
+                    doneUploading();
+                    prediction.innerHTML = "You do not have a valid model, " + $('#loginUsername').val() + ".";
+                })
+            }
+
+		function uploading()
+		{
+		    $('#loading').show();
+		}
+
+		function doneUploading()
+		{
+		    $('#loading').hide();
+		}
+
+        function showResult() {
+            $('#prediction').show(); // Need to show the prediction value returned from backend somehow
+        }
+
+        function showCamera() {
+            $('#login').hide();
+            $('#realtime-video').show();
+            document.body.style.backgroundImage = "url('./images/background.jpg')";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+body {
+  background-image: url("./images/base.jpg");
+}
+
+.centerWithin {
+  text-align: center;
+}
+
+#fileDiv
+{
+border: dashed black;
+  background-color: darkgrey;
+  text-align: center;
+  position:absolute;
+  height: 300px;
+  width: 200px;
+  top:50%;
+  left:45%;
+  margin-top:-50px; /* this is half the height of your div*/
+  margin-left:-100px; /*this is half of width of your div*/
+}
+
+.center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
+#loading img {
+  position: absolute;
+  margin-top: 0px;
+  margin-left: 10px;
+  top: 0%;
+  left: 0%;
+ width: 192px;
+ height: 108px;
+}
+
+label{
+color: white;
+
+}
